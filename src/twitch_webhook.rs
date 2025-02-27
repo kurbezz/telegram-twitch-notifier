@@ -194,13 +194,20 @@ impl TwitchWebhookServer {
         .await;
     }
 
-    pub async fn subscribe(&self, streamer: String) {
-        let _ = eventsub_register(
+    pub async fn subscribe(&self, streamer: String) -> bool {
+        match eventsub_register(
             self.app_access_token.clone(),
-            streamer,
+            streamer.clone(),
             format!("{}/twitch/eventsub/", CONFIG.twitch_webhook_url),
         )
-        .await;
+        .await
+        {
+            Ok(_) => true,
+            Err(err) => {
+                eprintln!("Error subscribing to {}: {}", streamer, err);
+                false
+            }
+        }
     }
 
     pub async fn check_subscriptions(&self) {
@@ -218,12 +225,13 @@ impl TwitchWebhookServer {
                 let is_subscribed = self.subscribed_to.read().await.contains(&streamer);
 
                 if !is_subscribed {
-                    self.subscribe(streamer.clone()).await;
-                    self.subscribed_to.write().await.push(streamer);
+                    if self.subscribe(streamer.clone()).await {
+                        self.subscribed_to.write().await.push(streamer);
+                    }
                 }
             }
 
-            tokio::time::sleep(tokio::time::Duration::from_secs(60)).await;
+            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
         }
     }
 

@@ -1,17 +1,19 @@
 use std::{error::Error, sync::Arc};
 
 use teloxide::{
-    Bot,
-    adaptors::throttle::Limits,
-    dispatching::{HandlerExt, dialogue::GetChatId},
+    Bot as OriginBot,
+    adaptors::{CacheMe, Throttle, throttle::Limits},
+    dispatching::{HandlerExt, UpdateFilterExt as _, dialogue::GetChatId},
     dptree::{self, Handler},
     macros::BotCommands,
     prelude::{Dispatcher, LoggingErrorHandler, Requester, RequesterExt},
-    types::{BotCommand, Message},
+    types::{BotCommand, Message, Update},
     update_listeners::webhooks,
 };
 
 use crate::{config::CONFIG, subscription_manager::SubscriptionManager};
+
+pub type Bot = CacheMe<Throttle<OriginBot>>;
 
 pub type BotHandlerInternal = Result<(), Box<dyn Error + Send + Sync>>;
 type BotHandler = Handler<
@@ -32,11 +34,11 @@ enum Command {
 }
 
 pub async fn help_message_handler(bot: Bot, message: Message) -> BotHandlerInternal {
-    const HELP_MESSAGE: &str = r#"""
-    Welcome!
+    const HELP_MESSAGE: &str = r#"
+Welcome!
 
-    This bot allow you to subscribe to receive start stream notifications.
-    """#;
+This bot allow you to subscribe to receive start stream notifications.
+    "#;
 
     match bot
         .send_message(message.chat_id().unwrap(), HELP_MESSAGE)
@@ -86,22 +88,21 @@ pub async fn unsubscribe_handler(
 }
 
 pub async fn get_handler() -> BotHandler {
-    dptree::entry().branch(dptree::entry().filter_command::<Command>().endpoint(
-        |bot: Bot,
-         message: Message,
-         command: Command,
-         subscription_manager: Arc<SubscriptionManager>| async move {
-            match command {
-                Command::Start | Command::Help => help_message_handler(bot, message).await,
-                Command::Subscribe(username) => {
-                    subscribe_handler(bot, message, subscription_manager, username).await
+    dptree::entry().branch(
+        Update::filter_message()
+            .filter_command::<Command>()
+            .endpoint(|bot, message, command, subscription_manager| async move {
+                match command {
+                    Command::Start | Command::Help => help_message_handler(bot, message).await,
+                    Command::Subscribe(username) => {
+                        subscribe_handler(bot, message, subscription_manager, username).await
+                    }
+                    Command::Unsubscribe(username) => {
+                        unsubscribe_handler(bot, message, subscription_manager, username).await
+                    }
                 }
-                Command::Unsubscribe(username) => {
-                    unsubscribe_handler(bot, message, subscription_manager, username).await
-                }
-            }
-        },
-    ))
+            }),
+    )
 }
 
 pub async fn get_commands() -> Vec<BotCommand> {
@@ -125,8 +126,8 @@ pub async fn get_commands() -> Vec<BotCommand> {
     ]
 }
 
-pub async fn start_bot(subscription_manager: Arc<SubscriptionManager>) {
-    let bot = Bot::new(CONFIG.bot_token.clone())
+pub async fn start_telegram_bot(subscription_manager: Arc<SubscriptionManager>) {
+    let bot = OriginBot::new(CONFIG.bot_token.clone())
         .throttle(Limits::default())
         .cache_me();
 
@@ -141,9 +142,12 @@ pub async fn start_bot(subscription_manager: Arc<SubscriptionManager>) {
 
     let addr = ([0, 0, 0, 0], CONFIG.telegram_webhook_port).into();
     let url = CONFIG.telegram_webhook_url.parse().unwrap();
-    let update_listener = webhooks::axum(bot, webhooks::Options::new(addr, url))
-        .await
-        .expect("Couldn't setup webhook");
+    let update_listener = webhooks::axum(
+        bot,
+        webhooks::Options::new(addr, url).path("/telegram/".to_string()),
+    )
+    .await
+    .expect("Couldn't setup webhook");
 
     dispatcher
         .dispatch_with_listener(

@@ -1,12 +1,12 @@
-pub mod bot;
 pub mod config;
 pub mod subscription_manager;
+pub mod telegram_bot;
 pub mod twitch_webhook;
 
 use std::sync::Arc;
 
-use bot::start_bot;
 use subscription_manager::SubscriptionManager;
+use telegram_bot::start_telegram_bot;
 use twitch_webhook::start_twitch_webhook;
 
 #[tokio::main]
@@ -15,8 +15,10 @@ async fn main() {
 
     subscription_manager.init().await;
 
+    tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+
     let (_, webhook_result) = tokio::join!(
-        start_bot(subscription_manager.clone()),
+        start_telegram_bot(subscription_manager.clone()),
         start_twitch_webhook(subscription_manager)
     );
 
