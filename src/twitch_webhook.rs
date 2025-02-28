@@ -11,6 +11,7 @@ use eyre::{Context, ContextCompat};
 use futures::TryStreamExt as _;
 use http_body_util::BodyExt as _;
 use tokio::{net::TcpListener, sync::RwLock};
+use tower_http::trace::TraceLayer;
 use twitch_api::{
     HelixClient,
     client::ClientDefault,
@@ -183,7 +184,8 @@ impl TwitchWebhookServer {
                 "/twitch/eventsub/",
                 post(move |cache, request| twitch_eventsub(cache, request)),
             )
-            .layer(Extension(retainer));
+            .layer(Extension(retainer))
+            .layer(TraceLayer::new_for_http());
 
         let address = SocketAddr::new([0, 0, 0, 0].into(), CONFIG.twitch_webhook_port);
 

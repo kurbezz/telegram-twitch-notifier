@@ -11,6 +11,10 @@ use twitch_webhook::start_twitch_webhook;
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+
     let subscription_manager = Arc::new(SubscriptionManager::new());
 
     subscription_manager.init().await;
