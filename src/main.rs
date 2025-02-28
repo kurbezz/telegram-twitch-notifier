@@ -27,6 +27,6 @@ async fn main() {
     );
 
     if let Err(e) = webhook_result {
-        eprintln!("Error in webhook: {:?}", e);
+        tracing::error!("Error starting Twitch webhook: {}", e);
     }
 }

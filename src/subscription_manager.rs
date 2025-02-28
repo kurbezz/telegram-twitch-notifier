@@ -14,10 +14,12 @@ impl SubscriptionManager {
     }
 
     pub async fn init(&self) {
-        println!("SubscriptionManager initialized");
+        tracing::debug!("Initializing subscription manager");
     }
 
     pub async fn subscribe(&self, telegram_user_id: u64, username: String) {
+        tracing::debug!("Subscribing {} to {}", telegram_user_id, username);
+
         self.subscriptions
             .write()
             .await
@@ -27,6 +29,8 @@ impl SubscriptionManager {
     }
 
     pub async fn unsubscribe(&self, telegram_user_id: u64, username: String) {
+        tracing::debug!("Unsubscribing {} from {}", telegram_user_id, username);
+
         self.subscriptions
             .write()
             .await

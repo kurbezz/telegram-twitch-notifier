@@ -130,6 +130,8 @@ pub async fn twitch_eventsub(
     }
     use twitch_api::eventsub::{Message as M, Payload as P};
 
+    tracing::info!("Event: {:?}", event);
+
     match event {
         Event::StreamOnlineV1(P {
             message:
@@ -197,6 +199,8 @@ impl TwitchWebhookServer {
     }
 
     pub async fn subscribe(&self, streamer: String) -> bool {
+        tracing::info!("Subscribing to {}", streamer);
+
         match eventsub_register(
             self.app_access_token.clone(),
             streamer.clone(),
@@ -206,7 +210,7 @@ impl TwitchWebhookServer {
         {
             Ok(_) => true,
             Err(err) => {
-                eprintln!("Error subscribing to {}: {}", streamer, err);
+                tracing::error!("Failed to subscribe to {}: {:?}", streamer, err);
                 false
             }
         }
