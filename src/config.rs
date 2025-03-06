@@ -13,6 +13,8 @@ pub struct Config {
 
     pub twitch_webhook_url: String,
     pub twitch_webhook_port: u16,
+
+    pub mongodb_connection_string: String,
 }
 
 impl Config {
@@ -41,6 +43,9 @@ impl Config {
                 .expect("TWITCH_WEBHOOK_PORT is not set")
                 .parse()
                 .expect("TWITCH_WEBHOOK_PORT is not a valid u16"),
+
+            mongodb_connection_string: std::env::var("MONGODB_CONNECTION_STRING")
+                .expect("MONGODB_CONNECTION_STRING is not set"),
         }
     }
 }

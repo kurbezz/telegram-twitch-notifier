@@ -24,9 +24,7 @@ use twitch_api::{
 use twitch_oauth2::AppAccessToken;
 
 use crate::{
-    config::CONFIG,
-    subscription_manager::{self, SubscriptionManager},
-    telegram_bot::get_telegram_bot,
+    config::CONFIG, subscription_manager::SubscriptionManager, telegram_bot::get_telegram_bot,
 };
 
 pub async fn eventsub_register(

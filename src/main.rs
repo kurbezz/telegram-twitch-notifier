@@ -17,7 +17,7 @@ async fn main() {
 
     let subscription_manager = Arc::new(SubscriptionManager::new());
 
-    subscription_manager.init().await;
+    subscription_manager.load().await;
 
     tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
 
