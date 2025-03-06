@@ -126,10 +126,14 @@ pub async fn get_commands() -> Vec<BotCommand> {
     ]
 }
 
-pub async fn start_telegram_bot(subscription_manager: Arc<SubscriptionManager>) {
-    let bot = OriginBot::new(CONFIG.bot_token.clone())
+pub fn get_telegram_bot() -> Bot {
+    OriginBot::new(CONFIG.bot_token.clone())
         .throttle(Limits::default())
-        .cache_me();
+        .cache_me()
+}
+
+pub async fn start_telegram_bot(subscription_manager: Arc<SubscriptionManager>) {
+    let bot = get_telegram_bot();
 
     let handler = get_handler().await;
     let commands = get_commands().await;
