@@ -9,7 +9,7 @@ RUN cargo build --release --bin backend
 
 FROM rust:bullseye AS builder_frontend
 
-RUN ap-get update \
+RUN apt-get update \
     && apt-get install -y libc6 libc6-dev \
     && rm -rf /var/lib/apt/lists/*
 
