@@ -138,6 +138,7 @@ pub async fn start_telegram_bot(subscription_manager: Arc<SubscriptionManager>) 
     let handler = get_handler().await;
     let commands = get_commands().await;
 
+    let _ = bot.delete_webhook().await;
     let _ = bot.set_my_commands(commands).await;
 
     let mut dispatcher = Dispatcher::builder(bot.clone(), handler)
