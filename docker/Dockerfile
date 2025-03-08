@@ -1,4 +1,4 @@
-FROM rust:bullseye AS builder_backend
+FROM rust:bookworm AS builder_backend
 
 WORKDIR /app
 
@@ -7,11 +7,7 @@ COPY . .
 RUN cargo build --release --bin backend
 
 
-FROM rust:bullseye AS builder_frontend
-
-RUN apt-get update \
-    && apt-get install -y libc6 libc6-dev \
-    && rm -rf /var/lib/apt/lists/*
+FROM rust:bookworm AS builder_frontend
 
 RUN rustup target add wasm32-unknown-unknown
 
@@ -27,7 +23,7 @@ WORKDIR /app/src/frontend
 RUN trunk build --release
 
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 RUN apt-get update \
     && apt-get install -y openssl ca-certificates curl jq \
