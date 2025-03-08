@@ -9,6 +9,10 @@ RUN cargo build --release --bin backend
 
 FROM rust:bullseye AS builder_frontend
 
+RUN ap-get update \
+    && apt-get install -y libc6 libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN rustup target add wasm32-unknown-unknown
 
 RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
