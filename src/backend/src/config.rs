@@ -25,7 +25,8 @@ pub struct Config {
 impl Config {
     fn load() -> Self {
         Self {
-            telegram_bot_token: std::env::var("BOT_TOKEN").expect("BOT_TOKEN is not set"),
+            telegram_bot_token: std::env::var("TELEGRAM_BOT_TOKEN")
+                .expect("TELEGRAM_BOT_TOKEN is not set"),
 
             telegram_webhook_url: std::env::var("TELEGRAM_WEBHOOK_URL")
                 .expect("TELEGRAM_WEBHOOK_URL is not set"),
