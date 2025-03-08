@@ -127,7 +127,7 @@ pub async fn get_commands() -> Vec<BotCommand> {
 }
 
 pub fn get_telegram_bot() -> Bot {
-    OriginBot::new(CONFIG.bot_token.clone())
+    OriginBot::new(CONFIG.telegram_bot_token.clone())
         .throttle(Limits::default())
         .cache_me()
 }

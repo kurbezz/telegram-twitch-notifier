@@ -1,0 +1,10 @@
+[package]
+name = "frontend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
+stylist = "0.13"
+web-sys = { version = "0.3.77" }
+gloo-net = "0.6.0"

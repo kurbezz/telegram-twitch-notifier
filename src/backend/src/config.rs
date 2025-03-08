@@ -1,11 +1,15 @@
 use once_cell::sync::Lazy;
 
 pub struct Config {
-    pub bot_token: String,
+    // Telegram
+    pub telegram_bot_token: String,
 
     pub telegram_webhook_url: String,
     pub telegram_webhook_port: u16,
 
+    pub telegram_mini_app_port: u16,
+
+    // Twitch
     pub twitch_client_id: String,
     pub twitch_client_secret: String,
 
@@ -14,13 +18,14 @@ pub struct Config {
     pub twitch_webhook_url: String,
     pub twitch_webhook_port: u16,
 
+    // Common
     pub mongodb_connection_string: String,
 }
 
 impl Config {
     fn load() -> Self {
         Self {
-            bot_token: std::env::var("BOT_TOKEN").expect("BOT_TOKEN is not set"),
+            telegram_bot_token: std::env::var("BOT_TOKEN").expect("BOT_TOKEN is not set"),
 
             telegram_webhook_url: std::env::var("TELEGRAM_WEBHOOK_URL")
                 .expect("TELEGRAM_WEBHOOK_URL is not set"),
@@ -28,6 +33,10 @@ impl Config {
                 .expect("TELEGRAM_WEBHOOK_PORT is not set")
                 .parse()
                 .expect("TELEGRAM_WEBHOOK_PORT is not a valid u16"),
+            telegram_mini_app_port: std::env::var("TELEGRAM_MINI_APP_PORT")
+                .expect("TELEGRAM_MINI_APP_PORT is not set")
+                .parse()
+                .expect("TELEGRAM_MINI_APP_PORT is not a valid u16"),
 
             twitch_client_id: std::env::var("TWITCH_CLIENT_ID")
                 .expect("TWITCH_CLIENT_ID is not set"),

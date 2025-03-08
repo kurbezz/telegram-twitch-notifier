@@ -1,7 +1,9 @@
 pub mod config;
+pub mod repositories;
 pub mod subscription_manager;
 pub mod telegram_bot;
 pub mod twitch_webhook;
+pub mod web_app;
 
 use std::sync::Arc;
 

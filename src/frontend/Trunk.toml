@@ -1,0 +1,6 @@
+[build]
+public_url = "/assets/"
+
+[serve]
+address = "127.0.0.1"
+port = 8000
